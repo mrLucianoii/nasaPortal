@@ -70,7 +70,7 @@ func main() {
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
-		rest.Get("/apod", GetAstronomyToday),
+		rest.Get("/api/apod", GetAstronomyToday),
 	)
 	if err != nil {
 		log.Fatal(err)
