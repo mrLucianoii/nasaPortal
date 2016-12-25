@@ -1,5 +1,6 @@
-package nasaStruct
+package main
 
+// Nasa "AstronomyPicOfDay"" JSON struct
 type AstronomyPicOfDay struct {
 	Copyright      string `json:"copyright"`
 	Date           string `json:"date"`
@@ -11,6 +12,7 @@ type AstronomyPicOfDay struct {
 	URL            string `json:"url"`
 }
 
+// Nasa "Mars Rovers" JSON struct
 type MarsRovers struct {
 	Photos []struct {
 		ID     int `json:"id"`

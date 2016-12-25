@@ -5,9 +5,65 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/ant0ine/go-json-rest/rest"
 )
 
-func getNasaData(source string) {
+// Nasa "AstronomyPicOfDay"" JSON struct
+type AstronomyPicOfDay struct {
+	Copyright      string `json:"copyright"`
+	Date           string `json:"date"`
+	Explanation    string `json:"explanation"`
+	Hdurl          string `json:"hdurl"`
+	MediaType      string `json:"media_type"`
+	ServiceVersion string `json:"service_version"`
+	Title          string `json:"title"`
+	URL            string `json:"url"`
+}
+
+// Nasa "Mars Rovers" JSON struct
+type MarsRovers struct {
+	Photos []struct {
+		ID     int `json:"id"`
+		Sol    int `json:"sol"`
+		Camera struct {
+			ID       int    `json:"id"`
+			Name     string `json:"name"`
+			RoverID  int    `json:"rover_id"`
+			FullName string `json:"full_name"`
+		} `json:"camera"`
+		ImgSrc    string `json:"img_src"`
+		EarthDate string `json:"earth_date"`
+		Rover     struct {
+			ID          int    `json:"id"`
+			Name        string `json:"name"`
+			LandingDate string `json:"landing_date"`
+			LaunchDate  string `json:"launch_date"`
+			Status      string `json:"status"`
+			MaxSol      int    `json:"max_sol"`
+			MaxDate     string `json:"max_date"`
+			TotalPhotos int    `json:"total_photos"`
+			Cameras     []struct {
+				Name     string `json:"name"`
+				FullName string `json:"full_name"`
+			} `json:"cameras"`
+		} `json:"rover"`
+	} `json:"photos"`
+}
+
+func main() {
+	nasaSource := "apod"
+
+	api := rest.NewApi()
+	api.Use(rest.DefaultDevStack...)
+	api.SetApp(rest.AppSimple(func(w rest.ResponseWriter, r *rest.Request) {
+		w.WriteJson(getNasaData(nasaSource))
+	}))
+	log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
+
+}
+
+func getNasaData(source string) (record *AstronomyPicOfDay) {
 	url := fmt.Sprintf("https://api.nasa.gov/planetary/" + source + "?api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC")
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -29,18 +85,11 @@ func getNasaData(source string) {
 	// Close the body at end
 	defer resp.Body.Close()
 
-	// Load data from JSON
-	var record AstronomyPicOfDay
-
 	// Decode Json for reading
 	if eff := json.NewDecoder(resp.Body).Decode(&record); eff != nil {
 		log.Println(err)
 	}
 
-	fmt.Println("NASA Content of the Day: ", record.Explanation)
-}
-
-func main() {
-	nasaSource := "apod"
-	getNasaData(nasaSource)
+	fmt.Println("NASA Content of the Day: ", record)
+	return
 }
