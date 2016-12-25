@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 
 	"github.com/ant0ine/go-json-rest/rest"
@@ -52,8 +53,19 @@ type MarsRovers struct {
 	} `json:"photos"`
 }
 
+func determineListenAddress() (string, error) {
+	port := os.Getenv("PORT")
+	if port == "" {
+		return "", fmt.Errorf("$PORT not set")
+	}
+	return ":" + port, nil
+}
 func main() {
-	//nasaSource := "apod"
+
+	addr, err := determineListenAddress()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
@@ -64,7 +76,7 @@ func main() {
 		log.Fatal(err)
 	}
 	api.SetApp(router)
-	log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
+	log.Fatal(http.ListenAndServe(addr, api.MakeHandler()))
 
 }
 
