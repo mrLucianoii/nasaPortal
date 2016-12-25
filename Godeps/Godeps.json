@@ -2,5 +2,16 @@
 	"ImportPath": "nasaPortal",
 	"GoVersion": "go1.7",
 	"GodepVersion": "v75",
-	"Deps": []
+	"Deps": [
+		{
+			"ImportPath": "github.com/ant0ine/go-json-rest/rest",
+			"Comment": "v3.3.2",
+			"Rev": "ce4b71cdf7ba29ef443d704bd923f5bbf281ee30"
+		},
+		{
+			"ImportPath": "github.com/ant0ine/go-json-rest/rest/trie",
+			"Comment": "v3.3.2",
+			"Rev": "ce4b71cdf7ba29ef443d704bd923f5bbf281ee30"
+		}
+	]
 }
