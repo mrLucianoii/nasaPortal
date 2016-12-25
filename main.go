@@ -7,22 +7,6 @@ import (
 	"net/http"
 )
 
-type AstronomyPicOfDay struct {
-	Copyright      string `json:"copyright"`
-	Date           string `json:"date"`
-	Explanation    string `json:"explanation"`
-	Hdurl          string `json:"hdurl"`
-	MediaType      string `json:"media_type"`
-	ServiceVersion string `json:"service_version"`
-	Title          string `json:"title"`
-	URL            string `json:"url"`
-}
-
-func main() {
-	nasaSource := "apod"
-	getNasaData(nasaSource)
-}
-
 func getNasaData(source string) {
 	url := fmt.Sprintf("https://api.nasa.gov/planetary/" + source + "?api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC")
 
@@ -54,4 +38,9 @@ func getNasaData(source string) {
 	}
 
 	fmt.Println("NASA Content of the Day: ", record.Explanation)
+}
+
+func main() {
+	nasaSource := "apod"
+	getNasaData(nasaSource)
 }
