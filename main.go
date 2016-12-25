@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/ant0ine/go-json-rest/rest"
 )
@@ -52,15 +53,37 @@ type MarsRovers struct {
 }
 
 func main() {
-	nasaSource := "apod"
+	//nasaSource := "apod"
 
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
-	api.SetApp(rest.AppSimple(func(w rest.ResponseWriter, r *rest.Request) {
-		w.WriteJson(getNasaData(nasaSource))
-	}))
+	router, err := rest.MakeRouter(
+		rest.Get("/apod", GetAstronomyToday),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	api.SetApp(router)
 	log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 
+}
+
+var store = map[string]*AstronomyPicOfDay{}
+
+var lock = sync.RWMutex{}
+
+func GetAstronomyToday(w rest.ResponseWriter, r *rest.Request) {
+	code := "apod"
+	lock.RLock()
+	var today *AstronomyPicOfDay
+	today = getNasaData(code)
+	lock.RUnlock()
+
+	if today == nil {
+		rest.NotFound(w, r)
+		return
+	}
+	w.WriteJson(today)
 }
 
 func getNasaData(source string) (record *AstronomyPicOfDay) {
