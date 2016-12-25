@@ -19,7 +19,12 @@ type AstronomyPicOfDay struct {
 }
 
 func main() {
-	url := fmt.Sprintf("https://api.nasa.gov/planetary/apod?api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC")
+	nasaSource := "apod"
+	getNasaData(nasaSource)
+}
+
+func getNasaData(source string) {
+	url := fmt.Sprintf("https://api.nasa.gov/planetary/" + source + "?api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC")
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -45,9 +50,8 @@ func main() {
 
 	// Decode Json for reading
 	if eff := json.NewDecoder(resp.Body).Decode(&record); eff != nil {
-		log.Printf(err)
+		log.Println(err)
 	}
 
-	fmt.Printf("NASA Content of the Day: ", (record))
-
+	fmt.Println("NASA Content of the Day: ", record.Explanation)
 }
