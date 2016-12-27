@@ -149,7 +149,7 @@ func getNasaData(source string) (record *AstronomyPicOfDay) {
 	return
 }
 
-func getMarsRoverFromNasa(source string) (record *MarsRovers) {
+func getMarsRoverFromNasa(source string) (recordMars *MarsRovers) {
 	url := fmt.Sprintf(source)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -172,9 +172,9 @@ func getMarsRoverFromNasa(source string) (record *MarsRovers) {
 	defer resp.Body.Close()
 
 	// Decode Json for reading
-	if eff := json.NewDecoder(resp.Body).Decode(&record); eff != nil {
+	if eff := json.NewDecoder(resp.Body).Decode(&recordMars); eff != nil {
 		log.Println(err)
 	}
-	fmt.Println("Mars Rover Content: ", record)
+	fmt.Println("Mars Rover Content: ", recordMars)
 	return
 }
