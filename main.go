@@ -60,23 +60,25 @@ func determineListenAddress() (string, error) {
 	}
 	return ":" + port, nil
 }
+
 func main() {
 
-	addr, err := determineListenAddress()
+	/*addr, err := determineListenAddress()
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	*/
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
 		rest.Get("/api/apod", GetAstronomyToday),
+		rest.Get("/isMars", GetMarsRoverData),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
 	api.SetApp(router)
-	log.Fatal(http.ListenAndServe(addr, api.MakeHandler()))
+	log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 
 }
 
@@ -84,11 +86,30 @@ var store = map[string]*AstronomyPicOfDay{}
 
 var lock = sync.RWMutex{}
 
+// HTTP Req To Nasa for Mars Rover Data
+func GetMarsRoverData(w rest.ResponseWriter, r *rest.Request) {
+	url := "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&camera=fhaz&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
+
+	lock.RLock()
+	var isMars *MarsRovers
+	isMars = getMarsRoverFromNasa(url)
+	lock.RUnlock()
+
+	if isMars == nil {
+		rest.NotFound(w, r)
+		return
+	}
+
+}
+
+// HTTP Req To Nasa for Astronomy of the Day
 func GetAstronomyToday(w rest.ResponseWriter, r *rest.Request) {
 	code := "apod"
+	url := "https://api.nasa.gov/planetary/" + code + "?api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
+
 	lock.RLock()
 	var today *AstronomyPicOfDay
-	today = getNasaData(code)
+	today = getNasaData(url)
 	lock.RUnlock()
 
 	if today == nil {
@@ -99,7 +120,7 @@ func GetAstronomyToday(w rest.ResponseWriter, r *rest.Request) {
 }
 
 func getNasaData(source string) (record *AstronomyPicOfDay) {
-	url := fmt.Sprintf("https://api.nasa.gov/planetary/" + source + "?api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC")
+	url := fmt.Sprintf(source)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -124,7 +145,36 @@ func getNasaData(source string) (record *AstronomyPicOfDay) {
 	if eff := json.NewDecoder(resp.Body).Decode(&record); eff != nil {
 		log.Println(err)
 	}
-
 	fmt.Println("NASA Content of the Day: ", record)
+	return
+}
+
+func getMarsRoverFromNasa(source string) (record *MarsRovers) {
+	url := fmt.Sprintf(source)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatal("NewRequest: ", err)
+		return
+	}
+
+	// HTTP Client
+	client := &http.Client{}
+
+	// Sends HTTP request
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal("Do: ", err)
+		return
+	}
+
+	// Close the body at end
+	defer resp.Body.Close()
+
+	// Decode Json for reading
+	if eff := json.NewDecoder(resp.Body).Decode(&record); eff != nil {
+		log.Println(err)
+	}
+	fmt.Println("Mars Rover Content: ", record)
 	return
 }
