@@ -63,11 +63,11 @@ func determineListenAddress() (string, error) {
 
 func main() {
 
-	/*addr, err := determineListenAddress()
+	addr, err := determineListenAddress()
 	if err != nil {
 		log.Fatal(err)
 	}
-	*/
+
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
@@ -78,7 +78,7 @@ func main() {
 		log.Fatal(err)
 	}
 	api.SetApp(router)
-	log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
+	log.Fatal(http.ListenAndServe(addr, api.MakeHandler()))
 
 }
 
