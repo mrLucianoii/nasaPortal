@@ -99,7 +99,7 @@ func GetMarsRoverData(w rest.ResponseWriter, r *rest.Request) {
 		rest.NotFound(w, r)
 		return
 	}
-	w.WriteJson(today)
+	w.WriteJson(isMars)
 
 }
 
