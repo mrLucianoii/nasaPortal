@@ -73,7 +73,7 @@ func main() {
 	router, err := rest.MakeRouter(
 		rest.Get("/api/apod", GetAstronomyToday),
 		rest.Get("/isMars", GetMarsRoverData),
-		rest.Get("/isMars/:camera/:id", GetMarsRoverDataId),
+		rest.Get("/isMars/:camera/:id", GetMarsRoverDataID),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -88,7 +88,7 @@ var store = map[string]*AstronomyPicOfDay{}
 var lock = sync.RWMutex{}
 
 // HTTP Req To Nasa for Mars Rover Data
-func GetMarsRoverDataId(w rest.ResponseWriter, r *rest.Request) {
+func GetMarsRoverDataID(w rest.ResponseWriter, r *rest.Request) {
 	id := r.PathParam("id")
 	camera := r.PathParam("camera")
 	url := "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + id + "&camera=" + camera + "&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
