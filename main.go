@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"sync"
 
 	"github.com/ant0ine/go-json-rest/rest"
@@ -54,8 +53,8 @@ type MarsRovers struct {
 }
 
 func determineListenAddress() (string, error) {
-	port := os.Getenv("PORT")
-	//port := "5000"
+	//port := os.Getenv("PORT")
+	port := "5000"
 	if port == "" {
 		return "", fmt.Errorf("$PORT not set")
 	}
@@ -74,6 +73,7 @@ func main() {
 	router, err := rest.MakeRouter(
 		rest.Get("/api/apod", GetAstronomyToday),
 		rest.Get("/isMars", GetMarsRoverData),
+		rest.Get("/isMars/:id", GetMarsRoverDataId),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -88,8 +88,26 @@ var store = map[string]*AstronomyPicOfDay{}
 var lock = sync.RWMutex{}
 
 // HTTP Req To Nasa for Mars Rover Data
+func GetMarsRoverDataId(w rest.ResponseWriter, r *rest.Request) {
+	id := r.PathParam("id")
+	url := "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + id + "&camera=fhaz&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
+
+	lock.RLock()
+	var isMars *MarsRovers
+	isMars = getMarsRoverFromNasa(url)
+	lock.RUnlock()
+
+	if isMars == nil {
+		rest.NotFound(w, r)
+		return
+	}
+	w.WriteJson(isMars)
+
+}
+
+// HTTP Req To Nasa for Mars Rover Data
 func GetMarsRoverData(w rest.ResponseWriter, r *rest.Request) {
-	url := "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&camera=fhaz&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
+	url := "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=900&camera=fhaz&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
 
 	lock.RLock()
 	var isMars *MarsRovers
