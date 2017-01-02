@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"sync"
 
 	"github.com/ant0ine/go-json-rest/rest"
@@ -54,7 +53,8 @@ type MarsRovers struct {
 }
 
 func determineListenAddress() (string, error) {
-	port := os.Getenv("PORT")
+	//port := os.Getenv("PORT")
+	port := "5000"
 	if port == "" {
 		return "", fmt.Errorf("$PORT not set")
 	}
@@ -99,6 +99,7 @@ func GetMarsRoverData(w rest.ResponseWriter, r *rest.Request) {
 		rest.NotFound(w, r)
 		return
 	}
+	w.WriteJson(today)
 
 }
 
