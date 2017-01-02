@@ -74,7 +74,8 @@ func main() {
 	api.Use(&rest.CorsMiddleware{
 		RejectNonCorsRequests: false,
 		OriginValidator: func(origin string, request *rest.Request) bool {
-			return origin == "http://www.ourcosmos.us"
+
+			return origin == "http://www.ourcosmos.us" || origin == "http://localhost:8080"
 		},
 		AllowedMethods: []string{"GET"},
 		AllowedHeaders: []string{
