@@ -104,7 +104,13 @@ var lock = sync.RWMutex{}
 func GetMarsRoverDataID(w rest.ResponseWriter, r *rest.Request) {
 	id := r.PathParam("id")
 	camera := r.PathParam("camera")
-	url := "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + id + "&camera=" + camera + "&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
+
+	url := " "
+	if camera == " " {
+		url = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + id + "&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
+	} else {
+		url = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + id + "&camera=" + camera + "&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
+	}
 
 	lock.RLock()
 	var isMars *MarsRovers
