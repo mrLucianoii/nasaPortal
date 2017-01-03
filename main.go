@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"sync"
 
 	"github.com/ant0ine/go-json-rest/rest"
@@ -54,11 +53,12 @@ type MarsRovers struct {
 }
 
 func determineListenAddress() (string, error) {
-	port := os.Getenv("PORT")
-	//port := "5000"
+	//port := os.Getenv("PORT")
+	port := "5000"
 	if port == "" {
 		return "", fmt.Errorf("$PORT not set")
 	}
+	log.Printf("NasaPortal API Live at: 5000 or PORT.env")
 	return ":" + port, nil
 }
 
@@ -93,7 +93,6 @@ func main() {
 	}
 	api.SetApp(router)
 	log.Fatal(http.ListenAndServe(addr, api.MakeHandler()))
-	log.Printf("NasaPortal API Live at: 5000")
 }
 
 var store = map[string]*AstronomyPicOfDay{}
