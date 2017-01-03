@@ -86,8 +86,8 @@ func main() {
 	router, err := rest.MakeRouter(
 		rest.Get("/api/apod", GetAstronomyToday),
 		rest.Get("/isMars", GetMarsRoverData),
-		rest.Get("/isMars/:camera/:id", GetMarsRoverDataID),
-		rest.Get("/isMars/:id", GetMarsRoverDataID),
+		rest.Get("/isMars/:camera/:sol", GetMarsRoverDataBoth),
+		rest.Get("/marsDay/:sol", GetMarsRoverDataSol),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -101,16 +101,30 @@ var store = map[string]*AstronomyPicOfDay{}
 var lock = sync.RWMutex{}
 
 // HTTP Req To Nasa for Mars Rover Data
-func GetMarsRoverDataID(w rest.ResponseWriter, r *rest.Request) {
-	id := r.PathParam("id")
+func GetMarsRoverDataBoth(w rest.ResponseWriter, r *rest.Request) {
+	sol := r.PathParam("sol")
 	camera := r.PathParam("camera")
 
-	url := " "
-	if camera == " " {
-		url = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + id + "&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
-	} else {
-		url = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + id + "&camera=" + camera + "&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
+	url := "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + sol + "&camera=" + camera + "&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
+
+	lock.RLock()
+	var isMars *MarsRovers
+	isMars = getMarsRoverFromNasa(url)
+	lock.RUnlock()
+
+	if isMars == nil {
+		rest.NotFound(w, r)
+		return
 	}
+	w.WriteJson(isMars)
+
+}
+
+// HTTP Req To Nasa for Mars Rover Data
+func GetMarsRoverDataSol(w rest.ResponseWriter, r *rest.Request) {
+	sol := r.PathParam("sol")
+
+	url := "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + sol + "&api_key=iz6rQYs0Ws9LWTf2SlBgSPpyHKerfx6JUBVYCnoC"
 
 	lock.RLock()
 	var isMars *MarsRovers
