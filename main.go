@@ -87,6 +87,7 @@ func main() {
 		rest.Get("/api/apod", GetAstronomyToday),
 		rest.Get("/isMars", GetMarsRoverData),
 		rest.Get("/isMars/:camera/:id", GetMarsRoverDataID),
+		rest.Get("/isMars/:id", GetMarsRoverDataID),
 	)
 	if err != nil {
 		log.Fatal(err)
